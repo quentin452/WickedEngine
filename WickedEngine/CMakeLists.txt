@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
-
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(MIN_OpenImageDenoise_VERSION "2.0")
 
 include(CMakePackageConfigHelpers)
