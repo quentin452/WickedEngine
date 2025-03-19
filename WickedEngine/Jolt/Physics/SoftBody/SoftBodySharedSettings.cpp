@@ -655,53 +655,72 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 	{
 		int g1 = group_idx[e.mVertex[0]];
 		int g2 = group_idx[e.mVertex[1]];
-		JPH_ASSERT(g1 >= 0 && g2 >= 0);
+		if (g1 < 0 || g2 < 0)
+		{
+			continue;
+		}
 		if (g1 == g2) // In the same group
 			groups[g1].mEdgeConstraints.push_back(uint(&e - mEdgeConstraints.data()));
 		else // In different groups -> parallel group
 			groups.back().mEdgeConstraints.push_back(uint(&e - mEdgeConstraints.data()));
 	}
+	
 	for (const LRA &l : mLRAConstraints)
 	{
 		int g1 = group_idx[l.mVertex[0]];
 		int g2 = group_idx[l.mVertex[1]];
-		JPH_ASSERT(g1 >= 0 && g2 >= 0);
+		if (g1 < 0 || g2 < 0)
+		{
+			continue;
+		}
 		if (g1 == g2) // In the same group
 			groups[g1].mLRAConstraints.push_back(uint(&l - mLRAConstraints.data()));
 		else // In different groups -> parallel group
 			groups.back().mLRAConstraints.push_back(uint(&l - mLRAConstraints.data()));
 	}
+	
 	for (const DihedralBend &d : mDihedralBendConstraints)
 	{
 		int g1 = group_idx[d.mVertex[0]];
 		int g2 = group_idx[d.mVertex[1]];
 		int g3 = group_idx[d.mVertex[2]];
 		int g4 = group_idx[d.mVertex[3]];
-		JPH_ASSERT(g1 >= 0 && g2 >= 0 && g3 >= 0 && g4 >= 0);
+		if (g1 < 0 || g2 < 0 || g3 < 0 || g4 < 0)
+		{
+			continue;
+		}
 		if (g1 == g2 && g1 == g3 && g1 == g4) // In the same group
 			groups[g1].mDihedralBendConstraints.push_back(uint(&d - mDihedralBendConstraints.data()));
 		else // In different groups -> parallel group
 			groups.back().mDihedralBendConstraints.push_back(uint(&d - mDihedralBendConstraints.data()));
 	}
+	
 	for (const Volume &v : mVolumeConstraints)
 	{
 		int g1 = group_idx[v.mVertex[0]];
 		int g2 = group_idx[v.mVertex[1]];
 		int g3 = group_idx[v.mVertex[2]];
 		int g4 = group_idx[v.mVertex[3]];
-		JPH_ASSERT(g1 >= 0 && g2 >= 0 && g3 >= 0 && g4 >= 0);
+		if (g1 < 0 || g2 < 0 || g3 < 0 || g4 < 0)
+		{
+			continue;
+		}
 		if (g1 == g2 && g1 == g3 && g1 == g4) // In the same group
 			groups[g1].mVolumeConstraints.push_back(uint(&v - mVolumeConstraints.data()));
 		else // In different groups -> parallel group
 			groups.back().mVolumeConstraints.push_back(uint(&v - mVolumeConstraints.data()));
 	}
+	
 	for (const Skinned &s : mSkinnedConstraints)
 	{
 		int g1 = group_idx[s.mVertex];
-		JPH_ASSERT(g1 >= 0);
+		if (g1 < 0)
+		{
+			continue;
+		}
 		groups[g1].mSkinnedConstraints.push_back(uint(&s - mSkinnedConstraints.data()));
 	}
-
+	
 	// Sort the parallel groups from big to small (this means the big groups will be scheduled first and have more time to complete)
 	QuickSort(groups.begin(), groups.end() - 1, [](const Group &inLHS, const Group &inRHS) { return inLHS.GetSize() > inRHS.GetSize(); });
 
